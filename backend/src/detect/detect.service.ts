@@ -3,7 +3,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AxiosResponse } from 'axios';
 import FormData from 'form-data';
 import { firstValueFrom } from 'rxjs';
-import { InferResponseDto } from './dto/infer-response.dto';
+import { DetectionResponseDto } from './dto/detect-response.dto';
 
 @Injectable()
 export class DetectService {
@@ -19,7 +19,9 @@ export class DetectService {
         contentType: mimeType,
       });
 
-      const { data } = await firstValueFrom<AxiosResponse<InferResponseDto>>(
+      const { data } = await firstValueFrom<
+        AxiosResponse<DetectionResponseDto>
+      >(
         this.http.post(this.modelUrl, form, {
           headers: form.getHeaders(),
         }),

@@ -51,7 +51,6 @@ void setup() {
 }
 
 void loop() {
-  // 1. Chụp ảnh
   camera_fb_t *fb = esp_camera_fb_get();
   if (!fb) {
     Serial.println("Camera capture failed");
@@ -59,7 +58,6 @@ void loop() {
     return;
   }
 
-  // 2. Gửi HTTP POST nếu Wi‑Fi OK
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     http.begin(serverUrl);
@@ -73,7 +71,6 @@ void loop() {
     http.end();
   }
 
-  // 3. Trả buffer và đợi
   esp_camera_fb_return(fb);
-  delay(10000); // gửi 1 tấm mỗi 10s (tuỳ bạn chỉnh)
+  delay(10000);
 }

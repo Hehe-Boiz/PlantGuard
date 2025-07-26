@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { DetectService } from './detect.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
 import { ImageJsonDto } from './dto/image-json.dto';
 import { writeFile } from 'fs/promises';
 
@@ -18,12 +17,7 @@ export class DetectController {
   constructor(private readonly detectService: DetectService) {}
 
   @Post('image')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: memoryStorage(),
-      limits: { fileSize: 50 * 1024 * 1024 },
-    }),
-  )
+  @UseInterceptors(FileInterceptor('image'))
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     console.log(file);
     if (!file) {

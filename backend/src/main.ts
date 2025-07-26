@@ -7,8 +7,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.useWebSocketAdapter(new IoAdapter(app));
-  app.use(json({ limit: '50mb' }));
-  app.use(urlencoded({ limit: '50mb', extended: true }));
+  app.use(json({ limit: '5mb' }));
+  app.use(urlencoded({ limit: '5mb', extended: true }));
 
   await app.listen(process.env.PORT ?? 3000);
 }
