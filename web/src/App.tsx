@@ -1,6 +1,5 @@
 import React, { type JSX } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { WiDaySunny } from "react-icons/wi";
@@ -8,7 +7,7 @@ import { FaWind } from "react-icons/fa";
 import { MdOpacity, MdThermostat, MdWaterDrop } from "react-icons/md";
 import { IoMdLeaf } from "react-icons/io";
 import { useState, useEffect } from "react";
-import axios from 'axios';
+import { io, Socket } from 'socket.io-client';
 
 interface SensorData {
   temperature: number;
@@ -25,16 +24,26 @@ interface InfoBoxProps {
 }
 
 export default function Dashboard(): JSX.Element {
-  const [data, setData] = useState<SensorData | null>(null);
+  const [data, setData] = useState<SensorData|null>(null);
+
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8000/ws")
-    socket.onmessage = (event) => {
-      const msg = JSON.parse(event.data)
-      setData(msg)
-    }
+    // mặc định path là /socket.io, nhưng do ta dùng adapter path '/ws'
+    const socket: Socket = io('http://localhost:8000', {
+      path: '/ws',
+      transports: ['websocket'], // ép chỉ dùng websocket
+    });
+
+    socket.on('connect', () => {
+      console.log('Connected with id', socket.id);
+    });
+
+    socket.on('sensorData', (msg: SensorData) => {
+      setData(msg);
+    });
+
     return () => {
-      socket.close()
-    }
+      socket.disconnect();
+    };
   }, []);
   return (
     <div className="p-4 space-y-4">

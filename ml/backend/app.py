@@ -64,16 +64,6 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.receive_text()# giữ kết nối mở
     except:
         clients.remove(websocket)
-# @app.post("/upload-image/")
-# async def upload_image(jpeg: bytes = Body(..., media_type="image/jpeg")):
-#     # Lưu ra file
-#     global index
-#     index += 1
-#     filename = f"./test_image/test{index}.jpg"
-#     with open(filename, "wb") as f:
-#         f.write(jpeg)
-#     return {"status": "ok", "size": len(jpeg)}
-
 
 if __name__ == "__main__":
     import uvicorn

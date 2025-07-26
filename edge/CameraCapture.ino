@@ -77,4 +77,3 @@ void loop() {
   esp_camera_fb_return(fb);
   delay(10000); // gửi 1 tấm mỗi 10s (tuỳ bạn chỉnh)
 }
-
