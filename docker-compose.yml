@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  ml:
+    build:
+      context: ./ml
+    ports:
+      - '8000:8000'
+  backend:
+    build: ./backend
+    depends_on:
+      - python-ai
+    ports:
+      - '3000:3000'
+  frontend:
+    build: ./web
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+    restart: always
+    depends_on:
+      - backend
