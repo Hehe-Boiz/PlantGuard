@@ -7,7 +7,7 @@
 const char* ssid     = "3Tan";
 const char* password = "3Sin/Cos";
 // URL endpoint FastAPI (thay bằng địa chỉ server của bạn)
-const char* serverUrl = "http://192.168.250.11:8000/upload-image/";
+const char* serverUrl = "http://192.168.250.11:8000/detect/image";
 
 void setup() {
   Serial.begin(115200);

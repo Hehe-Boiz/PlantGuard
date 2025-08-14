@@ -12,7 +12,6 @@ from models.detection import Detection
 from utils.image_utils import ImageUtils
 from services.classification_service import YoloClassifier, CNNClassifier, TensorFlowH5Classifier
 
-# Lớp Detector dùng chung cho cả hai Service
 class YoloOnnxDetector:
     def __init__(self, model_path: str, input_size: int, is_unified_model: bool = False):
         """
@@ -44,14 +43,12 @@ class YoloOnnxDetector:
 
         for det in preds:
             if self.is_unified_model:
-                # Dành cho model hợp nhất (phát hiện + phân loại)
                 class_scores = det[4:]
                 class_id = np.argmax(class_scores)
                 conf = class_scores[class_id]
             else:
-                # Dành cho model chỉ phát hiện (detection-only)
                 conf = det[4]
-                class_id = 0 # Mặc định là lớp "lá cà chua"
+                class_id = 0 
 
             if conf < CONF_THRES:
                 continue
@@ -78,15 +75,13 @@ class YoloOnnxDetector:
         preds = self.session.run([self.output_name], {self.input_name: blob})[0]
         return self._postprocess(preds, scale, pad, orig_shape)
 
-# Service để so sánh, đánh giá (3 model phân loại) 
 class DetectionService_Evaluate:
     """
     Dịch vụ phát hiện + phân loại từ ba bộ phân loại (YOLO, CNN, TF-H5).
     """
     def __init__(self, model_path: str, input_size: int):
-        # Model này chỉ dùng để phát hiện lá cây
         self.detector = YoloOnnxDetector(model_path, input_size, is_unified_model=False)
-        print("✅ Evaluation service initialized.")
+        print("Evaluation service initialized.")
 
         self.yolo_classifier = YoloClassifier(
             model_path=YOLO_CLASSIFIER_MODEL_PATH,
@@ -163,12 +158,10 @@ class DetectionService_Evaluate:
         result_data["json_file"] = json_filename
         return result_data
 
-# Service cho Production (1 model hợp nhất) 
 class DetectionService_Production:
     def __init__(self, model_path: str, input_size: int):
-        # Model này vừa phát hiện vừa phân loại
         self.detector = YoloOnnxDetector(model_path, input_size, is_unified_model=True)
-        print("✅ Production service initialized.")
+        print("Production service initialized.")
         os.makedirs(RECEIVED_IMAGES_DIR, exist_ok=True)
         os.makedirs(DETECTION_RESULTS_DIR, exist_ok=True)
         os.makedirs(JSON_RESULTS_DIR, exist_ok=True)

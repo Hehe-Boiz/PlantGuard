@@ -1,9 +1,6 @@
 from fastapi import APIRouter, Body, Depends, HTTPException
 from typing import Any
 
-# --- THAY ĐỔI: Import cả 2 service ---
-# Chú ý: Chúng ta không import trực tiếp class, chỉ định nghĩa hàm để FastAPI inject
-# service đã được tạo trong app.py
 def get_prod_service() -> Any:
     pass
 

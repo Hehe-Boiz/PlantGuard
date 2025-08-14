@@ -15,10 +15,10 @@ def send_test_image(image_path: str):
     Đọc một file ảnh và gửi dữ liệu thô của nó đến server FastAPI.
     """
     if not os.path.exists(image_path):
-        print(f"❌ Lỗi: Không tìm thấy file ảnh tại '{image_path}'")
+        print(f"Lỗi: Không tìm thấy file ảnh tại '{image_path}'")
         return
 
-    print(f"🚀 Đang gửi ảnh '{os.path.basename(image_path)}' đến server...")
+    print(f"Đang gửi ảnh '{os.path.basename(image_path)}' đến server...")
 
     try:
         # Đọc toàn bộ file ảnh vào bộ nhớ dưới dạng bytes
@@ -36,7 +36,7 @@ def send_test_image(image_path: str):
 
         # Xử lý phản hồi từ server
         if response.status_code == 200:
-            print("✅ Thành công! Phản hồi từ server:")
+            print("Thành công! Phản hồi từ server:")
             print(response.json())
         else:
             print(f"Thất bại! Mã trạng thái: {response.status_code}")

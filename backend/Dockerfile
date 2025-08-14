@@ -1,5 +1,5 @@
 FROM python:3.12.3
-
+RUN apt-get update && apt-get install -y libgl1-mesa-glx
 WORKDIR /app
 
 COPY requirements.txt .
@@ -7,5 +7,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-# SỬA Ở ĐÂY: Đảm bảo CMD chạy đúng tệp "app.py"
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

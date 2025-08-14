@@ -6,8 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 from itertools import count
-
-# Nếu bạn có các module này, giữ nguyên import
+from fastapi.staticfiles import StaticFiles
+import traceback
 try:
     from config import (
         UNIFIED_MODEL_PATH,
@@ -22,11 +22,13 @@ try:
     from controllers import detection_controller
     HAVE_DETECTION_STACK = True
 except Exception:
-    # Cho phép chạy app ngay cả khi chưa có các module model
+    print("!!!!!!!!!!!!!!!!! LỖI KHI KHỞI TẠO CÁC MODULE AI !!!!!!!!!!!!!!!!!")
+    traceback.print_exc()
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     HAVE_DETECTION_STACK = False
 
 app = FastAPI(title="Tomato Detection API")
-
+app.mount("/static", StaticFiles(directory="../app/data/image"), name="static") 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -36,7 +38,6 @@ app.add_middleware(
 )
 
 if HAVE_DETECTION_STACK:
-    # Khởi tạo service một lần
     production_service_instance = DetectionService_Production(
         model_path=UNIFIED_MODEL_PATH,
         input_size=UNIFIED_MODEL_INPUT_SIZE,
@@ -46,14 +47,12 @@ if HAVE_DETECTION_STACK:
         input_size=DETECTION_MODEL_INPUT_SIZE,
     )
 
-    # Providers cho dependency injection
     def get_production_service():
         return production_service_instance
 
     def get_evaluation_service():
         return evaluation_service_instance
 
-    # Ghi đè dependency trong controller
     app.dependency_overrides[detection_controller.get_prod_service] = (
         get_production_service
     )
@@ -61,7 +60,6 @@ if HAVE_DETECTION_STACK:
         get_evaluation_service
     )
 
-    # Mount router
     app.include_router(detection_controller.router)
 
 
@@ -100,17 +98,15 @@ manager = ConnectionManager()
 class SensorData(BaseModel):
     temperature: float
     humidity: float
-    soilMoisture: Optional[float] = None  # field tuỳ chọn nếu cần
+    soilMoisture: Optional[float] = None 
 
 
 @app.post("/api/data")
 async def receive_data(data: SensorData):
-    # Broadcast dữ liệu cảm biến cho tất cả client đang mở WS
     await manager.broadcast_json(data.model_dump())
     return {"status": "sent"}
 
 
-# Lưu ảnh JPEG thô gửi lên body
 _file_index = count(1)
 
 @app.post("/upload-image/")
@@ -128,7 +124,6 @@ async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            # Chỉ để giữ kết nối sống; bỏ qua nội dung
             await websocket.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(websocket)

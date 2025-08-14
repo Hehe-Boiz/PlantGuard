@@ -1,21 +1,33 @@
-import React, { type JSX } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import React, { type JSX, useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
 import { WiDaySunny } from "react-icons/wi";
-import { FaWind } from "react-icons/fa";
 import { MdOpacity, MdThermostat, MdWaterDrop } from "react-icons/md";
 import { IoMdLeaf } from "react-icons/io";
-import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-
 
 interface SensorData {
   temperature: number;
   humidity: number;
-  wind: number;
   soilMoisture: number;
+}
+
+interface Prediction {
+  label: string;
+  confidence: string;
+  detection_box: [number, number, number, number];
+}
+
+interface DetectionResult {
+  cropped_image_file: string;
+  prediction: Prediction;
+}
+
+interface AiAnalysisResult {
+  original_image: string;
+  detections_found: number;
+  results: DetectionResult[];
+  json_file: string;
 }
 
 interface InfoBoxProps {
@@ -25,79 +37,134 @@ interface InfoBoxProps {
 }
 
 export default function Dashboard(): JSX.Element {
-  const [data, setData] = useState<SensorData | null>(null);
+  const [sensorData, setSensorData] = useState<SensorData | null>(null);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [aiResult, setAiResult] = useState<AiAnalysisResult | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8000/ws")
+    const socket = new WebSocket("ws://localhost:8000/ws");
     socket.onmessage = (event) => {
-      const msg = JSON.parse(event.data)
-      setData(msg)
-    }
+      const msg = JSON.parse(event.data);
+      setSensorData(msg);
+    };
     return () => {
-      socket.close()
-    }
+      socket.close();
+    };
   }, []);
+
+  const handleImageUpload = async () => {
+    if (!selectedImage) {
+      alert("Vui lòng chọn một ảnh!");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setAiResult(null);
+
+    try {
+      const response = await fetch("http://localhost:8000/detect/image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "image/jpeg",
+        },
+        body: selectedImage,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Lỗi từ server: ${response.statusText}`);
+      }
+
+      const result: AiAnalysisResult = await response.json();
+      setAiResult(result);
+    } catch (err: any) {
+      setError(`Không thể phân tích ảnh: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="p-4 space-y-4">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <p className="text-sm text-gray-500">Weilburg, Germany</p>
-          <p className="text-lg font-bold">Tue, 10 September 2024</p>
+          <p className="text-sm text-gray-500">Ho Chi Minh, Vietnam</p>
+          <p className="text-lg font-bold">Thứ Năm, 14 Tháng Tám 2025</p>
         </div>
         <div className="flex items-center space-x-2">
           <WiDaySunny className="text-3xl text-yellow-400" />
-          <span className="text-2xl font-bold">24°C</span>
+          <span className="text-2xl font-bold">28°C</span>
         </div>
       </div>
 
-      {/* Plant Info */}
       <Card>
         <CardContent className="grid grid-cols-3 gap-4 p-4">
           <div className="col-span-3 flex items-center space-x-2">
             <IoMdLeaf className="text-green-500 text-2xl" />
-            <span className="font-bold text-lg">Plant Health</span>
-            <span className="text-green-500">DashBoard</span>
+            <span className="font-bold text-lg">PlantGuard</span>
+            <span className="text-green-500">Dashboard</span>
           </div>
-          <InfoBox icon={<MdThermostat />} label="Temp" value={`${data?.temperature}`} />
-          <InfoBox icon={<MdOpacity />} label="Humidity" value={`${data?.humidity}%`} />
-          <InfoBox icon={<MdWaterDrop />} label="Soil Moisture" value={`${data?.soilMoisture}%`} />
+          <InfoBox icon={<MdThermostat />} label="Temp" value={sensorData ? `${sensorData.temperature.toFixed(1)}°C` : "N/A"} />
+          <InfoBox icon={<MdOpacity />} label="Humidity" value={sensorData ? `${sensorData.humidity.toFixed(1)}%` : "N/A"} />
+          <InfoBox icon={<MdWaterDrop />} label="Soil Moisture" value={sensorData ? `${sensorData.soilMoisture.toFixed(0)}%` : "N/A"} />
         </CardContent>
       </Card>
 
-      {/* Tasks and Camera */}
-      {/* <Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Phân Tích Sức Khỏe Cây Trồng</CardTitle>
+        </CardHeader>
         <CardContent className="p-4 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center rounded-2xl border bg-muted/30 p-4">
-            <div className="md:col-span-2">
-              <div className="relative w-full aspect-[4/3] overflow-hidden rounded-xl bg-white">
-                <img className="w-full h-full object-cover" />
-              </div>
-            </div>
+          <div className="flex items-center space-x-4">
+            <input 
+              type="file" 
+              accept="image/jpeg, image/png"
+              className="flex-grow"
+              onChange={(e) => e.target.files && setSelectedImage(e.target.files[0])} 
+            />
+            <Button onClick={handleImageUpload} disabled={isLoading || !selectedImage}>
+              {isLoading ? "Đang xử lý..." : "Phân tích"}
+            </Button>
           </div>
+          
+          {isLoading && <p>Mô hình AI đang phân tích, vui lòng chờ...</p>}
+          {error && <p className="text-red-500">{error}</p>}
+          {aiResult && (
+            <div className="mt-4 space-y-4">
+              <h3 className="font-bold">Kết quả phân tích: <Badge>{`Phát hiện ${aiResult.detections_found} đối tượng`}</Badge></h3>
+              {aiResult.results.length > 0 ? (
+                aiResult.results.map((detection, index) => (
+                  <div key={index} className="flex items-start space-x-4 border p-3 rounded-lg">
+                    <img 
+                      src={`http://localhost:8000/static/detection_results/${detection.cropped_image_file}`} 
+                      alt={`Detection ${index + 1}`} 
+                      className="w-32 h-32 object-cover rounded-md border"
+                    />
+                    <div className="text-left">
+                      <p><strong>Bệnh:</strong> <Badge variant={detection.prediction.label.includes("healthy") ? "default" : "destructive"}>{detection.prediction.label}</Badge></p>
+                      <p><strong>Độ tin cậy:</strong> {(parseFloat(detection.prediction.confidence) * 100).toFixed(2)}%</p>
+                      <p className="text-xs text-gray-500 mt-2"><strong>Tọa độ Box:</strong> {`[${detection.prediction.detection_box.join(", ")}]`}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>Không phát hiện được lá cây nào trong ảnh.</p>
+              )}
+            </div>
+          )}
         </CardContent>
-      </Card> */}
-
-      {/* Bottom Tabs */}
-      {/* <Tabs defaultValue="plant" className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md">
-        <TabsList className="w-full grid grid-cols-4">
-          <TabsTrigger value="plant">Plant</TabsTrigger>
-          <TabsTrigger value="alerts">Alerts</TabsTrigger>
-          <TabsTrigger value="devices">Devices</TabsTrigger>
-          <TabsTrigger value="logs">Logs</TabsTrigger>
-        </TabsList>
-        <TabsContent value="alerts" className="p-4">Zone 5 dry, Section 3: Leaf disease suspected</TabsContent>
-        <TabsContent value="devices" className="p-4">Sensor 04 - Moisture: 65%</TabsContent>
-        <TabsContent value="logs" className="p-4">Last watered: 07:30 AM</TabsContent>
-      </Tabs> */}
+      </Card>
     </div>
   );
 }
 
 function InfoBox({ icon, label, value }: InfoBoxProps): JSX.Element {
   return (
-    <div className="bg-gray-100 rounded-xl p-3 flex flex-col items-center">
-      <div className="text-xl mb-1">{icon}</div>
-      <p className="text-xs text-gray-500">{label}</p>
+    <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-3 flex flex-col items-center justify-center">
+      <div className="text-2xl mb-1">{icon}</div>
+      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
       <p className="text-base font-semibold">{value}</p>
     </div>
   );
