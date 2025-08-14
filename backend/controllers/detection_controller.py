@@ -1,8 +1,13 @@
-from fastapi import APIRouter, Body, Depends
-from services.detection_service import DetectionService
+from fastapi import APIRouter, Body, Depends, HTTPException
+from typing import Any
 
-# Hàm này vẫn giữ nguyên, FastAPI sẽ sử dụng nó để inject service
-def get_detection_service():
+# --- THAY ĐỔI: Import cả 2 service ---
+# Chú ý: Chúng ta không import trực tiếp class, chỉ định nghĩa hàm để FastAPI inject
+# service đã được tạo trong app.py
+def get_prod_service() -> Any:
+    pass
+
+def get_eval_service() -> Any:
     pass
 
 router = APIRouter(
@@ -10,10 +15,31 @@ router = APIRouter(
     tags=["Detection"]
 )
 
-@router.post("/image")
-async def detect_image_from_upload(
+@router.post("/image", summary="Run production model (unified)")
+async def detect_image_production(
     image_bytes: bytes = Body(..., media_type="image/jpeg"),
-    service: DetectionService = Depends(get_detection_service) 
+    service = Depends(get_prod_service) 
 ):
-    results = service.process_image(image_bytes)
-    return results
+    """
+    Endpoint chính: Sử dụng model hợp nhất để phát hiện và phân loại.
+    """
+    try:
+        results = service.process_image(image_bytes)
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/evaluate", summary="Run evaluation models (1 detect + 3 classify)")
+async def detect_image_evaluation(
+    image_bytes: bytes = Body(..., media_type="image/jpeg"),
+    service = Depends(get_eval_service)
+):
+    """
+    Endpoint đánh giá: Sử dụng 1 model phát hiện và 3 model phân loại để so sánh.
+    """
+    try:
+        results = service.process_image(image_bytes)
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

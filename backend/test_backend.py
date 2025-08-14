@@ -4,8 +4,9 @@ import os
 
 # --- CẤU HÌNH TEST ---
 
+# SERVER_URL = "http://0.0.0.0:8000/detect/evaluate"
 SERVER_URL = "http://0.0.0.0:8000/detect/image"
-IMAGE_PATH = "/home/heheboiz/data/2013-08-20-05.jpg" # 👈 THAY ĐỔI ĐƯỜNG DẪN NÀY
+IMAGE_PATH = "/home/heheboiz/data/bacterial-leaf-spot.jpeg" # 👈 THAY ĐỔI ĐƯỜNG DẪN NÀY
 
 # --- HÀM GỬI YÊU CẦU ---
 
@@ -38,11 +39,11 @@ def send_test_image(image_path: str):
             print("✅ Thành công! Phản hồi từ server:")
             print(response.json())
         else:
-            print(f"❌ Thất bại! Mã trạng thái: {response.status_code}")
+            print(f"Thất bại! Mã trạng thái: {response.status_code}")
             print(f"   Nội dung lỗi: {response.text}")
 
     except requests.exceptions.RequestException as e:
-        print(f"❌ Lỗi kết nối đến server: {e}")
+        print(f"Lỗi kết nối đến server: {e}")
 
 if __name__ == "__main__":
     send_test_image(IMAGE_PATH)
