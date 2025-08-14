@@ -1,0 +1,19 @@
+{
+    "original_image": "1755051703_original.jpg",
+    "detections_found": 1,
+    "results": [
+        {
+            "cropped_image_file": "1755051703_detection_1.jpg",
+            "prediction": {
+                "label": "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+                "confidence": "0.5850",
+                "detection_box": [
+                    98,
+                    6,
+                    713,
+                    495
+                ]
+            }
+        }
+    ]
+}

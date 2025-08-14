@@ -1,0 +1,48 @@
+{
+    "original_image": "1755051456_original.jpg",
+    "detections_found": 3,
+    "results": [
+        {
+            "detection_box": [
+                5,
+                259,
+                202,
+                430
+            ],
+            "detection_confidence": "0.8721",
+            "cropped_image_file": "1755051456_detection_1.jpg",
+            "prediction": {
+                "label": "Tomato___Bacterial_spot",
+                "confidence": "0.8721"
+            }
+        },
+        {
+            "detection_box": [
+                156,
+                26,
+                614,
+                518
+            ],
+            "detection_confidence": "0.7649",
+            "cropped_image_file": "1755051456_detection_2.jpg",
+            "prediction": {
+                "label": "Tomato___Bacterial_spot",
+                "confidence": "0.7649"
+            }
+        },
+        {
+            "detection_box": [
+                0,
+                421,
+                331,
+                530
+            ],
+            "detection_confidence": "0.5493",
+            "cropped_image_file": "1755051456_detection_3.jpg",
+            "prediction": {
+                "label": "Tomato___Bacterial_spot",
+                "confidence": "0.5493"
+            }
+        }
+    ]
+}

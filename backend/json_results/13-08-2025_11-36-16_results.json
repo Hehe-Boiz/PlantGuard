@@ -1,0 +1,72 @@
+{
+    "original_image": "13-08-2025_1755059776_original.jpg",
+    "detections_found": 3,
+    "results": [
+        {
+            "detection_box": [
+                5,
+                259,
+                202,
+                430
+            ],
+            "detection_confidence": "0.8721",
+            "cropped_image_file": "13-08-2025_1755059776_detection_1.jpg",
+            "yolo_classification": {
+                "label": "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+                "confidence": "0.2289"
+            },
+            "cnn_classification": {
+                "label": "Unclassified",
+                "confidence": "0.0000"
+            },
+            "h5_classification": {
+                "label": "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+                "confidence": "0.2320"
+            }
+        },
+        {
+            "detection_box": [
+                156,
+                26,
+                614,
+                518
+            ],
+            "detection_confidence": "0.7649",
+            "cropped_image_file": "13-08-2025_1755059776_detection_2.jpg",
+            "yolo_classification": {
+                "label": "Tomato___Septoria_leaf_spot",
+                "confidence": "0.2313"
+            },
+            "cnn_classification": {
+                "label": "Unclassified",
+                "confidence": "0.0000"
+            },
+            "h5_classification": {
+                "label": "Unclassified",
+                "confidence": "0.0000"
+            }
+        },
+        {
+            "detection_box": [
+                0,
+                421,
+                331,
+                530
+            ],
+            "detection_confidence": "0.5493",
+            "cropped_image_file": "13-08-2025_1755059776_detection_3.jpg",
+            "yolo_classification": {
+                "label": "Tomato___Late_blight",
+                "confidence": "0.2291"
+            },
+            "cnn_classification": {
+                "label": "Unclassified",
+                "confidence": "0.0000"
+            },
+            "h5_classification": {
+                "label": "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+                "confidence": "0.2194"
+            }
+        }
+    ]
+}
